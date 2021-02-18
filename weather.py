@@ -28,6 +28,20 @@ def unix_to_hhmm(ts):
     dt = datetime.fromtimestamp(ts)
     return dt.strftime('%H:%M')
 
+def make_icon(status):
+    icons = {}
+    # insert more (where is a list of all keys?)
+    icons['clear sky'] = "🌞"
+    icons['few clouds'] = "🌤"
+    icons['scattered clouds'] = "⛅"
+    icons['broken clouds'] = "⛅"
+    icons['shower rain'] = "🌧"
+    icons['rain'] = "🌦"
+    icons['thunderstorm'] = "⛈"
+    icons['snow'] = "🌨"
+    icons['mist'] = "🌫"
+
+    return icons[status] if status in icons else status
 
 def format_weather(obs, format_str):
     data = {}
@@ -40,6 +54,7 @@ def format_weather(obs, format_str):
     data['temp_c'] = round(weather.get_temperature(unit='celsius')['temp'])
     data['temp_k'] = round(weather.get_temperature(unit='kelvin')['temp'])
     data['text'] = weather.get_detailed_status()
+    data['icon'] = make_icon(weather.get_detailed_status())
     data['humidity'] = weather.get_humidity()
     data['pressure'] = weather.get_pressure()['press']
 
