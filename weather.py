@@ -49,7 +49,7 @@ def format_weather(obs, format_str):
     # blowing in conflicting directions
     data['wind_direction'] = round(wind['deg']) if 'deg' in wind else None
     data['wind_speed_ms'] = round(wind['speed'])
-    data['wind_speed_kmh'] = round(weather.get_wind(unit='km_hour')['speed'])
+#    data['wind_speed_kmh'] = round(weather.get_wind(unit='km_hour')['speed'])
     data['wind_speed_mph'] = round(weather.get_wind(unit='miles_hour')['speed'])
     data['wind_direction_fuzzy'] = fuzzy_direction(data['wind_direction'])
     data['wind_direction_arrow'] = arrow_direction(data['wind_direction'])
