@@ -28,20 +28,33 @@ def unix_to_hhmm(ts):
     dt = datetime.fromtimestamp(ts)
     return dt.strftime('%H:%M')
 
-def make_icon(status):
-    icons = {}
-    # insert more (where is a list of all keys?)
-    icons['clear sky'] = "🌞"
-    icons['few clouds'] = "🌤"
-    icons['scattered clouds'] = "⛅"
-    icons['broken clouds'] = "⛅"
-    icons['shower rain'] = "🌧"
-    icons['rain'] = "🌦"
-    icons['thunderstorm'] = "⛈"
-    icons['snow'] = "🌨"
-    icons['mist'] = "🌫"
 
-    return icons[status] if status in icons else status
+def is_daytime(weather):
+    return weather.get_reference_time() in range(
+        weather.get_sunrise_time(), weather.get_sunset_time())
+
+
+def make_icon(weather):
+    icons = {
+        # insert more (where is a list of all keys?)
+        # status: [day, night],
+        'clear sky': ['🌞', '🌛'],
+        'few clouds': ['🌤', '🌤'],
+        'scattered clouds': ['⛅', '⛅'],
+        'broken clouds': ['⛅', '⛅'],
+        'overcast clouds': ['🌫', '🌫'],
+        'light rain': ['🌦', '🌦'],
+        'shower rain': ['🌧', '🌧'],
+        'rain': ['🌦', '🌦'],
+        'thunderstorm': ['⛈', '⛈'],
+        'snow': ['🌨', '🌨'],
+        'mist': ['🌫', '🌫']
+    }
+    status = weather.get_detailed_status()
+    if status in icons:
+        return icons[status][0 if is_daytime(weather) else 1]
+    return status
+
 
 def format_weather(obs, format_str):
     data = {}
@@ -54,7 +67,7 @@ def format_weather(obs, format_str):
     data['temp_c'] = round(weather.get_temperature(unit='celsius')['temp'])
     data['temp_k'] = round(weather.get_temperature(unit='kelvin')['temp'])
     data['text'] = weather.get_detailed_status()
-    data['icon'] = make_icon(weather.get_detailed_status())
+    data['icon'] = make_icon(weather)
     data['humidity'] = weather.get_humidity()
     data['pressure'] = weather.get_pressure()['press']
 
@@ -65,7 +78,8 @@ def format_weather(obs, format_str):
     data['wind_direction'] = round(wind['deg']) if 'deg' in wind else None
     data['wind_speed_ms'] = round(wind['speed'])
 #    data['wind_speed_kmh'] = round(weather.get_wind(unit='km_hour')['speed'])
-    data['wind_speed_mph'] = round(weather.get_wind(unit='miles_hour')['speed'])
+    data['wind_speed_mph'] = round(
+        weather.get_wind(unit='miles_hour')['speed'])
     data['wind_direction_fuzzy'] = fuzzy_direction(data['wind_direction'])
     data['wind_direction_arrow'] = arrow_direction(data['wind_direction'])
 
@@ -80,11 +94,11 @@ if __name__ == '__main__':
                    help='OpenWeatherMap API key')
     p.add_argument('--format', metavar='F',
                    default='{city}, {country}: {text}, {temp_f}°F',
-                   help="format string for output")
+                   help='format string for output')
     p.add_argument('--position', metavar='P', type=int, default=-2,
-                   help="position of output in JSON when wrapping i3status")
+                   help='position of output in JSON when wrapping i3status')
     p.add_argument('--update-interval', metavar='I', type=int, default=60 * 10,
-                   help="update interval in seconds (default: 10 minutes)")
+                   help='update interval in seconds (default: 10 minutes)')
     p.add_argument('--wrap-i3-status', action='store_true')
     p.add_argument('--zip-country', type=str, default='US',
                    help='set country for zip code lookup (defaults to US)')
@@ -92,7 +106,8 @@ if __name__ == '__main__':
     loc = p.add_mutually_exclusive_group(required=True)
     loc.add_argument('--zip', type=str,
                      help='retrieve weather by postal/zip code')
-    loc.add_argument('--city-id', type=int, help='retrieve weather by city ID')
+    loc.add_argument('--city-id', type=int,
+                     help='retrieve weather by city ID')
     loc.add_argument('--place', type=str,
                      help='retrieve weather by city,country name')
     args = p.parse_args()
