@@ -87,4 +87,4 @@ The following format specifiers are supported:
   - `{temp_f}` - temperature in Fahrenheit
   - `{temp_c}` - temperature in Celsius
   - `{temp_k}` - temperature in Kelvin
-  - `{icon}` - weather condition Unicode character as icon
+  - `{icon}` - weather condition Unicode character as icon (🌞🌛🌤⛅🌫🌦🌧⛈)
